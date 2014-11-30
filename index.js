@@ -2,7 +2,7 @@ module.exports = co;
 
 function co(generator) {
   var ctx = this;
-  var gen = generator.apply(this);
+  var gen = isGeneratorFunction(generator) ? generator.call(this) : generator;
   return resolvedPromise();
   function resolvedPromise(value) {
     var ret;
@@ -30,8 +30,9 @@ function co(generator) {
       return Promise.resolve(ret.value);
     } else {
       if (isPromise(ret.value)) return ret.value.then(resolvedPromise, rejectedPromise);
-      if (Array.isArray(ret.value)) return arrayToPromise(ret.value).then(resolvedPromise, rejectedPromise);
-      return Promise.reject(new Error('only promise, promise array support yield, while you pass' + String(ret.value)))
+      if (isPromiseArray(ret.value)) return arrayToPromise(ret.value).then(resolvedPromise, rejectedPromise);
+      if (isGeneratorFunction(ret.value) || isGenerator(ret.value)) return co(ret.value);
+      return Promise.reject(new Error('only promise, promise array support yield, while you pass ' + String(ret.value)))
     }
   }
 
@@ -41,6 +42,20 @@ function co(generator) {
 
   function isPromise(obj) {
     return 'function' == typeof obj.then;
+  }
+
+  function isPromiseArray(obj) {
+    return Array.isArray(obj) && obj.every(isPromise);
+  }
+
+
+  function isGenerator(obj) {
+    return 'function' == typeof obj.next && 'function' == typeof obj.throw;
+  }
+
+  function isGeneratorFunction(obj) {
+    var constructor = obj.constructor;
+    return constructor && 'GeneratorFunction' == constructor.name;
   }
 
 }

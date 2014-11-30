@@ -24,6 +24,42 @@ describe('co-simplify', function () {
         })
     });
 
+    it('should yield generator function', function (done) {
+        var love = function *() {
+            var first = yield Promise.resolve('A');
+            var second = yield Promise.resolve('B');
+            return first + second;
+        };
+
+        co(function *() {
+            var result;
+            result = yield love;
+            return result;
+        }).then(function(value) {
+            value.should.equal('AB');
+            done();
+        })
+    });
+
+    it('should yield generator', function (done) {
+        var story = function *() {
+            var first = yield Promise.resolve('A');
+            var second = yield Promise.resolve('B');
+            return first + second;
+        };
+        var love =story();
+
+        co(function *() {
+            var result;
+            result = yield love;
+            return result;
+        }).then(function(value) {
+            value.should.equal('AB');
+            done();
+        })
+    });
+
+
     it('should resolve returned value for final promise', function (done) {
         co(function *() {
             var shuffle = yield Promise.resolve('A');
@@ -65,6 +101,17 @@ describe('co-simplify error resolve', function () {
     it('should taken illegal yield object as error', function (done) {
         co(function *() {
             yield 'A';
+        }).catch(function(err) {
+            err.should.be.a.error;
+            err.message.should.match(/^only promise, promise array support yield, while you pass/);
+            done();
+        })
+    });
+
+
+    it('should taken illegal yield array as error', function (done) {
+        co(function *() {
+            yield [Promise.resolve('A'), 'B'];
         }).catch(function(err) {
             err.should.be.a.error;
             err.message.should.match(/^only promise, promise array support yield, while you pass/);
