@@ -9,6 +9,7 @@ Generator based control flow goodness for nodejs and the browser. only support y
 
 ## Attention
 Only for study, not for production.
+You can see [tj/co](https://github.com/tj/co for production)
 
 ## Platform Compatibility
 

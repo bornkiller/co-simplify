@@ -11,7 +11,8 @@
   "devDependencies": {
     "istanbul": "^0.3.2",
     "mocha": "^2.0.0",
-    "should": "^4.3.0"
+    "should": "^4.3.0",
+    "thunkify": "^2.1.2"
   },
   "scripts": {
     "test": "mocha --harmony-generators --reporter spec",
@@ -21,7 +22,7 @@
     "index.js"
   ],
   "license": "MIT",
-  "repository": "bornkiller/co",
+  "repository": "https://github.com/bornkiller/co-simplify",
   "engines": {
     "node": ">= 0.11.13"
   }

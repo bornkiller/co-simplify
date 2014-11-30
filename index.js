@@ -32,12 +32,22 @@ function co(generator) {
       if (isPromise(ret.value)) return ret.value.then(resolvedPromise, rejectedPromise);
       if (isPromiseArray(ret.value)) return arrayToPromise(ret.value).then(resolvedPromise, rejectedPromise);
       if (isGeneratorFunction(ret.value) || isGenerator(ret.value)) return co(ret.value);
+      if ('function' == typeof ret.value) return thunkToPromise(ret.value).then(resolvedPromise, rejectedPromise);
       return Promise.reject(new Error('only promise, promise array support yield, while you pass ' + String(ret.value)))
     }
   }
 
   function arrayToPromise(array) {
     return Promise.all(array);
+  }
+
+  function thunkToPromise(thunk) {
+    return new Promise(function(resolve, reject) {
+      thunk(function(err, value) {
+        if (err) return reject(err);
+        return resolve(value);
+      })
+    })
   }
 
   function isPromise(obj) {

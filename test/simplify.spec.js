@@ -41,6 +41,24 @@ describe('co-simplify', function () {
         })
     });
 
+    it('should yield thunk', function (done) {
+        var thunkify = require('thunkify');
+        var path = require('path');
+        var fs = require('fs');
+        var thunk = thunkify(fs.readFile)(path.join(__dirname, '/fixture/fixture'));
+
+        co(function *() {
+            var shuffle;
+            shuffle = yield thunk;
+            return shuffle;
+        }).then(function(value) {
+            value.toString().should.equal('love is color blind!');
+            done();
+        });
+    });
+
+
+
     it('should yield generator', function (done) {
         var story = function *() {
             var first = yield Promise.resolve('A');
@@ -113,8 +131,27 @@ describe('co-simplify error resolve', function () {
         co(function *() {
             yield [Promise.resolve('A'), 'B'];
         }).catch(function(err) {
-            err.should.be.a.error;
+            err.should.be.an.error;
             err.message.should.match(/^only promise, promise array support yield, while you pass/);
+            done();
+        })
+    });
+
+
+    it('should taken yield thunk err', function (done) {
+        var thunkify = require('thunkify');
+        var path = require('path');
+        var fs = require('fs');
+        var thunk = thunkify(fs.readFile)(path.join(__dirname, '/fixture/fixtures'));
+
+        co(function *() {
+            var shuffle;
+            shuffle = yield thunk;
+            console.log(shuffle);
+            return shuffle;
+        }).then(function(value) {
+            value.should.be.an.error;
+            (value.message).should.match(/test\/fixture\/fixtures/);
             done();
         })
     });
